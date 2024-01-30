@@ -70,6 +70,22 @@
         #z{
             font: optional;
         }
+        #pauseb{
+            position: absolute;
+            top:10px;
+            left:10px;
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        #resumeb{
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -78,6 +94,8 @@
     <img id="playButton" src="play_button.png" alt="Play">
     <div id="score">Score: 0</div>
     <button id="darkModeButton">Dark Mode</button>
+    <button id=pauseb>Pause</button>
+    <button id=resumeb>Resume</button>
 
     <?php
     session_start();
@@ -258,6 +276,11 @@
             function update() {
                 frames++;
 
+                if (isPaused) {
+                    // Do nothing if the game is paused
+                    return;
+                }
+
                 if (bubbleInFlight) {
                     const deltaX = bubbleX - shooterX;
                     const deltaY = bubbleY - shooterY;
@@ -330,6 +353,49 @@
                 }
             }
 
+            let isPaused = false;
+            
+
+            function pauseGame() {
+                isPaused = true;
+                document.getElementById('pauseb').style.display = 'none';
+                document.getElementById('resumeb').style.display = 'block';
+                document.removeEventListener('keydown', handleEscapeKey);
+                // Add logic to pause the game (if needed)
+            }
+
+            function resumeGame() {
+                isPaused = false;
+                document.getElementById('pauseb').style.display = 'block';
+                document.getElementById('resumeb').style.display = 'none';
+                document.addEventListener('keydown', handleEscapeKey);
+                // Add logic to resume the game (if needed)
+            }
+            function handleEscapeKey(event) {
+        if (event.key === 'Escape') {
+            pauseGame();
+        }}
+        function updateScore() {
+                if (!gameOver) {
+                    score += scoreIncreaseRate;
+                    scoreElement.textContent = `Score: ${score}`;
+                    // Update the score on the server using AJAX
+                    updateServerScore(score);
+                }
+            }
+            function updateScore() {
+                if (!gameOver && !isPaused) {
+                    score += scoreIncreaseRate;
+                    scoreElement.textContent = `Score: ${score}`;
+                    // Update the score on the server using AJAX
+                    updateServerScore(score);
+                }
+            }
+
+            document.getElementById('pauseb').addEventListener('click', pauseGame);
+            document.addEventListener('keydown', handleEscapeKey);
+            document.getElementById('resumeb').addEventListener('click', resumeGame);
+
             function gameLoop() {
                 update();
                 draw();
@@ -382,15 +448,6 @@
 
             const scoreElement = document.getElementById('score');
             const scoreIncreaseRate = 10; // Zwiększenie co 1 sekundę
-
-            function updateScore() {
-                if (!gameOver) {
-                    score += scoreIncreaseRate;
-                    scoreElement.textContent = `Score: ${score}`;
-                    // Update the score on the server using AJAX
-                    updateServerScore(score);
-                }
-            }
 
             let gameFinished = false;
 
