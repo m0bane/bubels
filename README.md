@@ -9,3 +9,7 @@ we don't really know what to write here so just uhhhh,,,,
 
 look at jeremy
 옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ옷ꐕ
+
+
+
+to run the program download xampp activate mysql and apache click browse and put all files in folder called htdocs, then open your browser and write localhost/bubels/bubels.php
