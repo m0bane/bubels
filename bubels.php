@@ -98,49 +98,58 @@
     <button id=resumeb>Resume</button>
 
     <?php
-    session_start();
-        $servername = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "bubels_reg_log";
+session_start();
 
-        // Utwórz połączenie
-        $conn = new mysqli($servername, $username, $password, $dbname);
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "bubels_reg_log";
 
-        // Sprawdź połączenie
-        if ($conn->connect_error) {
-            die("Błąd połączenia z bazą danych: " . $conn->connect_error);
-        }
+// Utwórz połączenie
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-        // Tutaj możesz wykonywać operacje na bazie danych, na przykład zapisywać, pobierać lub aktualizować dane.
-        // Check if the user is logged in
-        if (!isset($_SESSION['username'])) {
-        // Redirect to the login page if not logged in
-            header('Location: login.php');
-            exit();
-        }
-        $loggedInUsername = $_SESSION['username'];
-        $score = isset($_SESSION['score']) ? $_SESSION['score'] : 0; // Set default score to 0 // Assuming you store the score in the session
+// Sprawdź połączenie
+if ($conn->connect_error) {
+    die("Błąd połączenia z bazą danych: " . $conn->connect_error);
+}
 
-        // Zapisz wynik do pliku
-        $file = fopen("score.txt", "a");
-        fwrite($file, $loggedInUsername . ";" . $score . "\n");
-        fclose($file);
+// Tutaj możesz wykonywać operacje na bazie danych, na przykład zapisywać, pobierać lub aktualizować dane.
+// Check if the user is logged in
+if (!isset($_SESSION['username'])) {
+    // Redirect to the login page if not logged in
+    header('Location: login.php');
+    exit();
+}
 
-        // Zamknij połączenie po zakończeniu operacji
-        $conn->close();
-        echo '<div id="loggedInUser">Logged in as: ' . $loggedInUsername . '&nbsp; <button onclick="logout()">Logout</button></div>';
+$loggedInUsername = $_SESSION['username'];
+$score = isset($_SESSION['score']) ? $_SESSION['score'] : 0;
 
-        $leaderboardFile = "leaderboards.txt";
-    $leaderboardData = file($leaderboardFile, FILE_SKIP_EMPTY_LINES);
+// Update the user's score in the database using prepared statement
+$sql = "UPDATE users SET score = ? WHERE username = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("is", $score, $loggedInUsername);
+$stmt->execute();
+$stmt->close();
 
-    // Sortuj dane od najwyższego do najniższego wyniku
-    usort($leaderboardData, function($a, $b) {
-        list(, $scoreA) = explode(";", $a);
-        list(, $scoreB) = explode(";", $b);
-        return intval($scoreB) - intval($scoreA);
-    });
-    ?>
+// Zapisz wynik do pliku
+$file = fopen("score.txt", "a");
+fwrite($file, $loggedInUsername . ";" . $score . "\n");
+fclose($file);
+
+// Zamknij połączenie po zakończeniu operacji
+$conn->close();
+echo '<div id="loggedInUser">Logged in as: ' . $loggedInUsername . '&nbsp; <button onclick="logout()">Logout</button></div>';
+
+$leaderboardFile = "leaderboards.txt";
+$leaderboardData = file($leaderboardFile, FILE_SKIP_EMPTY_LINES);
+
+// Sortuj dane od najwyższego do najniższego wyniku
+usort($leaderboardData, function($a, $b) {
+    list(, $scoreA) = explode(";", $a);
+    list(, $scoreB) = explode(";", $b);
+    return intval($scoreB) - intval($scoreA);
+});
+?>
 
 <div id="leaderboard">
         <h2>Leaderboard</h2>
@@ -453,7 +462,7 @@
 
             function updateServerScore(score) {
                 const xhr = new XMLHttpRequest();
-                xhr.open('POST', 'http://127.0.0.1:5000/api/update_score', true); // Zmień ten adres na właściwy, jeśli serwer działa na innym porcie lub adresie
+                xhr.open('POST', 'update_score.php', true);
                 xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
                 xhr.onreadystatechange = function () {
                     if (xhr.readyState == 4 && xhr.status == 200) {
@@ -461,9 +470,9 @@
                     }
                 };
 
-                // Dodaj informacje o restarcie lub zakończeniu gry do danych wysyłanych do serwera
+                // Add information about the game over and username to data sent to the server
                 const loggedInUsername = '<?php echo $loggedInUsername; ?>';
-                const requestData = `score=${score}&gameOver=${gameOver}&username=${loggedInUsername}`;
+                const requestData = `score=${score}&gameOver=true&username=${loggedInUsername}`;
                 xhr.send(requestData);
             }
 
