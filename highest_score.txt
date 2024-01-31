@@ -1,2 +1,0 @@
-mole lester;0
-mole lester;30
