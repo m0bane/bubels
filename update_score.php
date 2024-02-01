@@ -25,7 +25,6 @@ if (!isset($_SESSION['username'])) {
 
 $loggedInUsername = $_SESSION['username'];
 $score = isset($_POST['score']) ? intval($_POST['score']) : 0;
-
 // Update the user's score in the database
 $sql = "UPDATE users SET score = ? WHERE username = ?";
 $stmt = $conn->prepare($sql);
@@ -33,6 +32,11 @@ $stmt->bind_param("is", $score, $loggedInUsername);
 $stmt->execute();
 $stmt->close();
 
+$sqlUpdateBestScore = "UPDATE users SET bscore = ? WHERE score > bscore";
+$stmtUpdateBestScore = $conn->prepare($sqlUpdateBestScore);
+$stmtUpdateBestScore->bind_param("i", $score);
+$stmtUpdateBestScore->execute();
+$stmtUpdateBestScore->close();
 
 // Zamknij połączenie po zakończeniu operacji
 $conn->close();

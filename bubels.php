@@ -123,7 +123,6 @@ if (!isset($_SESSION['username'])) {
 
 $loggedInUsername = $_SESSION['username'];
 $score = isset($_SESSION['score']) ? $_SESSION['score'] : 0;
-
 // Update the user's score in the database using prepared statement
 $sql = "UPDATE users SET score = ? WHERE username = ?";
 $stmt = $conn->prepare($sql);
@@ -131,48 +130,62 @@ $stmt->bind_param("is", $score, $loggedInUsername);
 $stmt->execute();
 $stmt->close();
 
+$sqlUpdateBestScore = "UPDATE users SET bscore = ? WHERE score > bscore";
+$stmtUpdateBestScore = $conn->prepare($sqlUpdateBestScore);
+$stmtUpdateBestScore->bind_param("i", $score);
+$stmtUpdateBestScore->execute();
+$stmtUpdateBestScore->close();
+
 // Zapisz wynik do pliku
 $file = fopen("score.txt", "a");
 fwrite($file, $loggedInUsername . ";" . $score . "\n");
 fclose($file);
 
 // Zamknij połączenie po zakończeniu operacji
+
+$queryLeaderboard = "SELECT username, bscore FROM users ORDER BY bscore DESC LIMIT 10";
+$statementLeaderboard = $conn->prepare($queryLeaderboard);
+$statementLeaderboard->execute();
+$statementLeaderboard->bind_result($username, $bscore);
+
+// Pobierz wyniki i zapisz je do tablicy
+$leaderboardData = array();
+while ($statementLeaderboard->fetch()) {
+    $leaderboardData[] = array('username' => $username, 'bscore' => $bscore);
+}
+
+// Zamknij połączenie po zakończeniu operacji na bazie danych
+$statementLeaderboard->close();
 $conn->close();
+
 echo '<div id="loggedInUser">Logged in as: ' . $loggedInUsername . '&nbsp; <button onclick="logout()">Logout</button></div>';
 
-$leaderboardFile = "leaderboards.txt";
-$leaderboardData = file($leaderboardFile, FILE_SKIP_EMPTY_LINES);
-
 // Sortuj dane od najwyższego do najniższego wyniku
-usort($leaderboardData, function($a, $b) {
-    list(, $scoreA) = explode(";", $a);
-    list(, $scoreB) = explode(";", $b);
-    return intval($scoreB) - intval($scoreA);
+
+usort($leaderboardData, function ($a, $b) {
+    return $b['bscore'] - $a['bscore'];
 });
 ?>
 
 <div id="leaderboard">
-        <h2>Leaderboard</h2>
-        <table>
-            <tr>
-                <th id='z'>#</th>
-                <th id='z'>Username</th>
-                <th id='z'>Score</th>
-            </tr>
-            <?php
-            // Wyświetl maksymalnie 10 miejsc w tabeli
-            $rank = 1;
-            foreach ($leaderboardData as $line) {
-                if ($rank <= 10) {
-                    list($username, $score) = explode(";", $line);
-                    echo "<tr><td>$rank</td><td>$username</td><td>$score</td></tr>";
-                    $rank++;
-                } else {
-                    break; // Przerwij pętlę, jeśli osiągnięto 10 miejsc
-                }
-            }
-            ?>
-        </table>
+    <h2>Leaderboard</h2>
+    <table id="leaderboardTable">
+        <tr>
+            <th id='z'>#</th>
+            <th id='z'>Username</th>
+            <th id='z'>Score</th>
+        </tr>
+        <?php
+        // Wyświetlenie danych z bazy danych
+        $rank = 1;
+        foreach ($leaderboardData as $row) {
+            $username = $row['username'];
+            $bscore = $row['bscore'];
+            echo "<tr><td>$rank</td><td>$username</td><td>$bscore</td></tr>";
+            $rank++;
+        }
+        ?>
+    </table>
 </div>
 
     <script>
@@ -181,6 +194,20 @@ usort($leaderboardData, function($a, $b) {
                 // Redirect to the logout page (create a new logout.php file if not existing)
                 window.location.href = 'logout.php';
             }
+
+            function updateLeaderboard() {
+                // Pobierz najnowsze dane z leaderboardu i zaktualizuj tabelę
+                var xmlhttp = new XMLHttpRequest();
+                xmlhttp.onreadystatechange = function () {
+                    if (this.readyState == 4 && this.status == 200) {
+                        document.getElementById("leaderboardTable").innerHTML = this.responseText;
+                    }
+                };
+                xmlhttp.open("GET", "get_leaderboard.php", true);
+                xmlhttp.send();
+            }
+
+            setInterval(updateLeaderboard, 5000);
 
         document.addEventListener('DOMContentLoaded', function() {
             const canvas = document.getElementById('bubbleShooter');
