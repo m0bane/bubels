@@ -389,14 +389,33 @@ usort($leaderboardData, function ($a, $b) {
                 }
             }
 
-            let isPaused = false;
-            
+            var isPaused = false;
 
+            function porr() {
+                if (isPaused===true){
+                    console.log('s')
+                    resumeGame();
+                }
+                else{
+                    pauseGame();
+                    console.log('b')
+                }
+            }
+            
+            function mouseMoveHandler(e) {
+                const rect = canvas.getBoundingClientRect();
+
+                // Ogranicz pozycję myszki do obszaru gry
+                const mouseX = Math.max(0, Math.min(e.clientX - rect.left, canvas.width));
+                const mouseY = Math.max(0, Math.min(e.clientY - rect.top, canvas.height));
+            }
             function pauseGame() {
                 isPaused = true;
                 document.getElementById('pauseb').style.display = 'none';
                 document.getElementById('resumeb').style.display = 'block';
-                document.removeEventListener('keydown', handleEscapeKey);
+                document.addEventListener('keydown', handleEscapeKey);
+                document.removeEventListener('mousemove', mouseMoveHandler);
+              
                 // Add logic to pause the game (if needed)
             }
 
@@ -405,11 +424,14 @@ usort($leaderboardData, function ($a, $b) {
                 document.getElementById('pauseb').style.display = 'block';
                 document.getElementById('resumeb').style.display = 'none';
                 document.addEventListener('keydown', handleEscapeKey);
+                document.addEventListener('mousemove', mouseMoveHandler);
+
                 // Add logic to resume the game (if needed)
             }
             function handleEscapeKey(event) {
+                console.log('ufu')
         if (event.key === 'Escape') {
-            pauseGame();
+            porr();
         }}
         function updateScore() {
                 if (!gameOver) {
