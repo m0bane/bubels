@@ -1,0 +1,97 @@
+/* Resetowanie stylów dla lepszej konsystencji */
+body, h2, form, label, p {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+h2 {
+    color: #007BFF;
+}
+
+form {
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+input[type="text"],
+input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+button {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#toggleButton {
+    margin-top: 10px;
+    cursor: pointer;
+    color: #007BFF;
+    background: none;
+    border: none;
+    text-decoration: underline;
+}
+
+#toggleButton:hover {
+    color: #0056b3;
+}
+
+a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Dodatkowe style dla sekcji z komunikatami */
+p.message {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+/* Dodatkowe style dla przycisku "Play" */
+#playButton {
+    margin-top: 10px;
+}
+
+h2, p{
+    text-align:center;
+}
+
+h2{
+    margin-top:5%;
+}

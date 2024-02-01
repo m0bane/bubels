@@ -40,14 +40,15 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration</title>
+    <link rel="stylesheet" href="booba.css">
 </head>
 <body>
     <h2>Registration Form</h2>
     <form method="post" action="">
         <label for="username">Username:</label>
-        <input type="text" name="username" required maxlength="20"><br>
+        <input type="text" name="username" required maxlength="15"><br>
         <label for="password">Password:</label>
-        <input type="password" name="password" required minlength="10" maxlength="20"><br>
+        <input type="password" name="password" required minlength="5" maxlength="15"><br>
         <input type="submit" value="Register">
     </form>
     <p>Already have an account? <a href="login.php">Login</a></p>

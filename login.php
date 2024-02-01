@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="booba.css">
     <title>Login</title>
     <script>
         function validateForm() {
             var username = document.getElementById('username').value;
             var password = document.getElementById('password').value;
 
-            if (username.length > 20) {
-                alert("Username should be at most 20 characters long.");
+            if (username.length > 15) {
+                alert("Username should be at most 15 characters long.");
                 return false;
             }
 
             // Check password length only if the username is provided
-            if (username && password && (password.length < 10 || password.length > 20)) {
-                alert("Password should be between 10 and 20 characters long.");
+            if (username && password && (password.length < 5 || password.length > 15)) {
+                alert("Password should be between 5 and 15 characters long.");
                 return false;
             }
 
@@ -36,10 +37,7 @@
             }
         }
 
-        function redirectToLoginPage() {
-            // Redirect to the bubels.php page
-            window.location.href = 'bubels.php';
-        }
+        
     </script>
     <?php
     session_start();
@@ -71,7 +69,7 @@
                     echo "Correct password";
                     $_SESSION['username'] = $username;
                     // Show the 'Play' button after successful login
-                    echo '&nbsp;<input type="button" id="playButton" value="Play" onclick="redirectToLoginPage()">';
+                    header('Location:bubels.php');
                 } else {
                     echo "Incorrect password";
                 }
@@ -89,12 +87,13 @@
     <h2>Login Form</h2>
     <form method="post" action="login.php" onsubmit="return validateForm()">
         <label for="username">Username:</label>
-        <input type="text" name="username" id="username" required maxlength="20"><br>
+        <input type="text" name="username" id="username" required maxlength="15"><br>
         <label for="password">Password:</label>
-        <input type="password" name="password" id="password" minlength="10" maxlength="20">
+        <input type="password" name="password" id="password" minlength="5" maxlength="15">
         <button type="button" id="toggleButton" onclick="togglePassword()">Show Password</button><br>
-        <input type="submit" value="Login">
+        <input type="submit" value="Login">&nbsp;
     </form>
     <p>Don't have an account? <a href="register.php">Register</a></p>
+    <p>Forgot password? <a href="cpwd.php">Change password</a></p>
 </body>
 </html>
