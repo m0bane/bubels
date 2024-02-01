@@ -1,33 +1,39 @@
 <?php
 session_start();
 
-if (isset($_POST['score']) && isset($_POST['gameOver'])) {
-    $score = $_POST['score'];
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "bubels_reg_log";
 
-    // Sprawdź, czy to jest game over
-    if ($_POST['gameOver'] === 'true') {
-        // Odczytaj poprzedni najwyższy wynik
-        $prevHighestScore = isset($_SESSION['prev_highest_score']) ? $_SESSION['prev_highest_score'] : 0;
+// Utwórz połączenie
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-        // Sprawdź, czy aktualny wynik jest wyższy niż poprzedni najwyższy wynik
-        if ($score > $prevHighestScore) {
-            // Zapisz aktualny wynik jako nowy najwyższy wynik
-            $_SESSION['prev_highest_score'] = $score;
-
-            // Usuń poprzedni najwyższy wynik z pliku
-            file_put_contents("highest_score.txt", $_SESSION['username'] . ";" . $prevHighestScore . "\n");
-
-            // Zapisz nowy najwyższy wynik do pliku
-            file_put_contents("highest_score.txt", $_SESSION['username'] . ";" . $score . "\n", FILE_APPEND);
-
-            echo 'Highest score updated successfully.';
-        } else {
-            echo 'Score not higher than the previous highest score.';
-        }
-    } else {
-        echo 'Invalid request.';
-    }
-} else {
-    echo 'Invalid request.';
+// Sprawdź połączenie
+if ($conn->connect_error) {
+    die("Błąd połączenia z bazą danych: " . $conn->connect_error);
 }
+
+// Tutaj możesz wykonywać operacje na bazie danych, na przykład zapisywać, pobierać lub aktualizować dane.
+
+// Check if the user is logged in
+if (!isset($_SESSION['username'])) {
+    // Redirect to the login page if not logged in
+    header('Location: login.php');
+    exit();
+}
+
+$loggedInUsername = $_SESSION['username'];
+$score = isset($_POST['score']) ? intval($_POST['score']) : 0;
+
+// Update the user's score in the database
+$sql = "UPDATE users SET score = ? WHERE username = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("is", $score, $loggedInUsername);
+$stmt->execute();
+$stmt->close();
+
+
+// Zamknij połączenie po zakończeniu operacji
+$conn->close();
 ?>
