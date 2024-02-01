@@ -13,3 +13,5 @@ look at jeremy
 
 
 to run the program download xampp activate mysql and apache click browse and put all files in folder called htdocs, then open your browser and write localhost/bubels/bubels.php
+
+xampp download: https://bit.ly/xampp-official-download
